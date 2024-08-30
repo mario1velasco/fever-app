@@ -2,7 +2,15 @@
   "name": "@fever-pets/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "start": "npx nx run fever-app:serve",
+    "build": " npx nx run fever-app:build:production",
+    "lint": "npx nx run fever-app:lint",
+    "unit:test": "npx nx run fever-app:test",
+    "e2e": "npx nx run fever-app-e2e:e2e",
+    "e2e:edit": "npx nx run fever-app-e2e:open-cypress",
+    "storybook": "npx nx run ui:storybook"
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "~18.2.0",
