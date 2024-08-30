@@ -7,7 +7,7 @@ export interface PetsList {
 }
 
 export interface Pet {
-  id: number | string;
+  id: number;
   name: string;
   kind: string;
   weight: number;

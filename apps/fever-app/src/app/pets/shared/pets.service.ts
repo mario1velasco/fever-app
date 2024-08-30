@@ -22,12 +22,12 @@ export class PetsService {
   /**
    * This function retrieves a pet by its ID from an API using TypeScript and returns it as an
    * Observable.
-   * @param {string} id - The `id` parameter is a string that represents the unique identifier of a
+   * @param {number} id - The `id` parameter is a number that represents the unique identifier of a
    * pet. It is used to retrieve a specific pet from the API by appending it to the URL endpoint.
    * @returns An Observable of type Pet is being returned.
    */
-  get(id: string): Observable<Pet> {
-    const path = `/fever_pets_data/pets/${id}`;
+  get(id: number): Observable<Pet> {
+    const path = `/fever_pets_data/pets/${id.toString()}`;
     return this.apiService.get(path) as Observable<Pet>;
   }
 

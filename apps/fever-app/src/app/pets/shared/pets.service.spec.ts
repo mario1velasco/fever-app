@@ -133,7 +133,6 @@ describe('PetsService', () => {
       photo_url: 'https://example.com/rocky.jpg',
       description: 'An unhealthy dog',
     };
-    // const healthValue = pet.weight / (pet.height * pet.length);
 
     expect(service.calculatePetHealth(healthyCat)).toBe('healthy');
     expect(service.calculatePetHealth(unhealthyCat)).toBe('unhealthy');
