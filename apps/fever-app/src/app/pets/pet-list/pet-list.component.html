@@ -1,0 +1,6 @@
+<div *ngFor="let pet of pets()">
+  <h2>{{ pet.name }}</h2>
+  <img [src]="pet.photo_url" [alt]="pet.name" />
+  <p>Health: {{ petService.calculatePetHealth(pet) }}</p>
+  <!-- <a [routerLink]="['/pets', pet.id]">View Details</a> -->
+</div>

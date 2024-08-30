@@ -1,9 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { Location } from '@angular/common';
-import { ButtonComponent } from '@gbrepo/ui';
 
 @Component({
-  imports: [ButtonComponent],
+  imports: [],
   selector: 'app-not-found',
   standalone: true,
   styleUrls: ['./not-found.component.scss'],
