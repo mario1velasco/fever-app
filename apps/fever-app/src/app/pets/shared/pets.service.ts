@@ -13,15 +13,19 @@ export class PetsService {
   // ****** API Methods  *******
   // **********************
   /**
-   * The function `getList` retrieves a list of pets from a specified API endpoint, with optional
-   * filtering, pagination, and sorting based on provided parameters.
-   * @param {Partial<Pet>} [filters] - An optional object containing filter criteria for the pet list.
-   * @param {number} [page] - The page number for pagination (default is 1).
-   * @param {number} [perPage] - The number of items per page (default is 10).
-   * @param {string[]} [sort] - An array of field names for sorting (e.g., ['name', '-weight'] for
-   * ascending name and descending weight).
-   * @returns An Observable of an array of Pet objects, potentially filtered, paginated, and sorted
-   * based on the provided parameters.
+   * Fetches a list of pets from the API with optional filtering, pagination, and sorting.
+   *
+   * @param filters (Optional) An object containing filter criteria for the pets.
+   * @param page (Optional) The page number for pagination (default: 1).
+   * @param perPage (Optional) The number of pets per page (default: 10).
+   * @param sort (Optional) An array of sort criteria. Valid values are:
+   *   - 'nameAsc' (Ascending order by name)
+   *   - 'nameDesc' (Descending order by name)
+   *   - 'weightAsc', 'weightDesc', 'heightAsc', 'heightDesc', 'lengthAsc', 'lengthDesc'
+   *   - 'kindAsc', 'kindDesc'
+   *   Invalid sort values will be ignored.
+   *
+   * @returns An Observable emitting an array of `Pet` objects representing the fetched pets.
    */
   getList(
     filters?: Partial<Pet>,
@@ -29,22 +33,7 @@ export class PetsService {
     perPage = 10,
     sort?: string[]
   ): Observable<Pet[]> {
-    let params = new HttpParams()
-      .set('_page', page.toString())
-      .set('_per_page', perPage.toString());
-
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          params = params.append(key, value.toString());
-        }
-      });
-    }
-
-    if (sort && sort.length > 0) {
-      params = params.set('_sort', sort.join(','));
-    }
-
+    const params = this.generateHttpParams(filters, page, perPage, sort);
     const path = `/fever_pets_data/pets`;
     return this.apiService.get(path, { params }) as Observable<Pet[]>;
   }
@@ -63,6 +52,12 @@ export class PetsService {
   // **********************
   // ****** Methods *******
   // **********************
+  /**
+   * Calculates the health of a pet based on its weight, height, and length.
+   *
+   * @param {Pet} pet - A Pet object containing the pet's weight, height, length, kind, and number of lives.
+   * @returns {string} A string indicating the health of the pet: "unhealthy", "healthy", or "very healthy".
+   */
   calculatePetHealth(pet: Pet): string {
     const healthValue = pet.weight / (pet.height * pet.length);
 
@@ -75,5 +70,66 @@ export class PetsService {
     } else {
       return 'very healthy';
     }
+  }
+
+  // **********************
+  // ****** Private Methods *******
+  // **********************
+  private generateHttpParams(
+    filters?: Partial<Pet>,
+    page = 1,
+    perPage = 10,
+    sort?: string[]
+  ): HttpParams {
+    let params = new HttpParams()
+      .set('_page', page.toString())
+      .set('_per_page', perPage.toString());
+
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params = params.append(key, value.toString());
+        }
+      });
+    }
+
+    if (sort) {
+      params = this.addSortHttpParams(params, sort);
+    }
+    return params;
+  }
+  /**
+   * Adds sort parameters to the given HttpParams.
+   *
+   * @param params - The HttpParams to which the sort parameters will be added.
+   * @param sort - An array of sort criteria.
+   * @returns The updated HttpParams.
+   */
+  private addSortHttpParams(params: HttpParams, sort: string[]): HttpParams {
+    // Also implemented for descending as documentation says: https://github.com/typicode/json-server?tab=readme-ov-file#sort
+    const validSortValues = [
+      'nameAsc',
+      'nameDesc',
+      'weightAsc',
+      'weightDesc',
+      'heightAsc',
+      'heightDesc',
+      'lengthAsc',
+      'lengthDesc',
+      'kindAsc',
+      'kindDesc',
+    ];
+
+    if (sort && sort.length > 0) {
+      const transformedSort = sort
+        .filter((s) => typeof s === 'string' && validSortValues.includes(s)) // Validate sort values
+        .map((s) =>
+          s.endsWith('Asc') ? s.slice(0, -3) : `-${s.slice(0, -4)}`
+        ); // Transform
+
+      params = params.set('_sort', transformedSort.join(','));
+    }
+
+    return params;
   }
 }
