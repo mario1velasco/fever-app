@@ -10,7 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { PetsService } from '../shared/pets.service';
-import { ButtonComponent } from '@fever-pets/ui';
+import { ButtonComponent, PaginatorComponent } from '@fever-pets/ui';
 import { NavBarComponent } from '../../shared/components/nav-bar/nav-bar.component';
 import { PetListFiltersComponent } from './components/pet-list-filters/pet-list-filters.component';
 import { PetListResultsComponent } from './components/pet-list-results/pet-list-results.component';
@@ -28,6 +28,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
     NavBarComponent,
     PetListFiltersComponent,
     PetListResultsComponent,
+    PaginatorComponent,
   ],
   providers: [PetsService],
   templateUrl: './pet-list.component.html',
@@ -104,6 +105,28 @@ export class PetListComponent implements OnInit {
           this.updatePetList();
         }
       });
+  }
+  /**
+   * The function `onPageSizeChange` updates the page size for a pet search of.
+   * @param {number} newPageSize - The `newPageSize` parameter is a number that represents the new page
+   * size that is selected by the user. It is used in the `onPageSizeChange` function to update the
+   * page size for displaying search results for pets.
+   */
+  onPageSizeChange(newPageSize: number) {
+    this.currentPage.set(1);
+    this.pageSize.set(newPageSize);
+    this.updatePetList();
+  }
+
+  /**
+   * The onPageChange function searches for pets on a new page and updates the current page
+   * number.
+   * @param {number} newPage - The `newPage` parameter is a number that represents the page number to
+   * which the user wants to navigate.
+   */
+  onPageChange(newPage: number) {
+    this.currentPage.set(newPage);
+    this.updatePetList();
   }
 
   // *****************

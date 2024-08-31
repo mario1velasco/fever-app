@@ -35,6 +35,10 @@ export class PaginatorComponent {
     return (this.currentPage() - 1) * this.pageSize() + 1;
   }
 
+  get to() {
+    return this.from + this.pageSize() - 1;
+  }
+
   // *************
   // * EVENTS
   // *************
