@@ -1,16 +1,18 @@
 import { NgModule } from '@angular/core';
 
 import { Route, RouterModule } from '@angular/router';
-import { PetListComponent } from './pet-list/pet-list.component';
-import { PetDetailsComponent } from './pet-details/pet-details.component';
 const routes: Route[] = [
   {
-    component: PetListComponent,
     path: '',
+    loadComponent: () =>
+      import('./pet-list/pet-list.component').then((m) => m.PetListComponent),
   },
   {
-    component: PetDetailsComponent,
     path: ':petId',
+    loadComponent: () =>
+      import('./pet-details/pet-details.component').then(
+        (m) => m.PetDetailsComponent
+      ),
   },
   { path: '**', pathMatch: 'full', redirectTo: '' },
 ];
