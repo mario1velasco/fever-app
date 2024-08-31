@@ -4,6 +4,7 @@ import {
   Component,
   DestroyRef,
   inject,
+  OnInit,
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -15,6 +16,8 @@ import { PetListFiltersComponent } from './components/pet-list-filters/pet-list-
 import { PetListResultsComponent } from './components/pet-list-results/pet-list-results.component';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Pet, PetFormType } from '../shared/pets.types';
+import { DeviceService } from '@fever-pets/core';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-pet-list',
@@ -30,14 +33,16 @@ import { Pet, PetFormType } from '../shared/pets.types';
   templateUrl: './pet-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PetListComponent {
+export class PetListComponent implements OnInit {
   // * Injectors
   public petService = inject(PetsService);
   private fb = inject(FormBuilder);
   private cd = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
+  private deviceService = inject(DeviceService);
 
   // * Signals Variables
+  public device = toSignal(this.deviceService.getDevice());
   public pets = toSignal(this.petService.getList());
   public currentPage = signal(1);
   public pageSize = signal(10);
@@ -47,6 +52,18 @@ export class PetListComponent {
     sortBy: ['', Validators.required],
     searchByName: [''],
   });
+
+  // *****************
+  // * Lifecycle hooks
+  // *****************
+  /**
+   * The ngOnInit function in TypeScript is a lifecycle hook method used in Angular to initialize
+   * component properties and make API calls.
+   */
+  ngOnInit(): void {
+    // ? We mock the initial called API to don't reach the limit of UNSPLASH API calls very fast
+    this.onDesktopFormValuesChange();
+  }
 
   // **********************
   // ****** Events  *******
@@ -68,6 +85,25 @@ export class PetListComponent {
     this.pageSize.set(10);
     this.currentPage.set(1);
     this.updatePetList();
+  }
+
+  /**
+   * The function `onDesktopFormValuesChange` listens for changes in form values, debounces them, and
+   * updates the pets list if the device is a desktop.
+   */
+  onDesktopFormValuesChange() {
+    this.form.valueChanges
+      .pipe(
+        debounceTime(1000),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        if (this.device() === 'desktop') {
+          this.currentPage.set(1);
+          this.updatePetList();
+        }
+      });
   }
 
   // *****************
