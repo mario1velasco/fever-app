@@ -1,10 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable, of, tap } from 'rxjs';
 import { Pet, PetState } from './pets.types';
 import { ApiService } from '@fever-pets/core';
 import { HttpParams } from '@angular/common/http';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class PetsService {
   // * Injectors
   private apiService = inject(ApiService);
@@ -48,13 +50,22 @@ export class PetsService {
     ) as Observable<Pet[]>;
   }
   /**
-   * This function retrieves a pet by its ID from an API using TypeScript and returns it as an
-   * Observable.
-   * @param {number} id - The `id` parameter is a number that represents the unique identifier of a
-   * pet. It is used to retrieve a specific pet from the API by appending it to the URL endpoint.
-   * @returns An Observable of type Pet is being returned.
+   * Retrieves a pet by its ID from the API or the local cache and returns it as an Observable.
+   * If `id` is null or undefined, it returns an empty Pet object.
+   * If the pet is found in the local cache, it returns an Observable of the cached pet.
+   * If the pet is not found in the local cache, it sends a GET request to the API to fetch the pet
+   * and returns an Observable of the pet.
+   * @param {string | null} id - The ID of the pet to retrieve.
+   * @returns An Observable of type Pet.
    */
-  get(id: number): Observable<Pet> {
+  get(id: string | null): Observable<Pet> {
+    if (!id) {
+      return of({} as Pet);
+    }
+    const petInState = this.pets()[Number(id)];
+    if (petInState) {
+      return of(petInState);
+    }
     const path = `/fever_pets_data/pets/${id.toString()}`;
     return this.apiService.get(path) as Observable<Pet>;
   }

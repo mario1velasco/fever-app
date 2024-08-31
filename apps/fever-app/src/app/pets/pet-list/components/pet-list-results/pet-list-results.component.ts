@@ -9,11 +9,11 @@ import { ButtonComponent } from '@fever-pets/ui';
 import { PetsService } from '../../../shared/pets.service';
 import { PetState } from '../../../shared/pets.types';
 import { PetListFiltersComponent } from '../pet-list-filters/pet-list-filters.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-pet-list-results',
   standalone: true,
-  providers: [PetsService],
   imports: [CommonModule, ButtonComponent, PetListFiltersComponent],
   templateUrl: './pet-list-results.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,6 +21,7 @@ import { PetListFiltersComponent } from '../pet-list-filters/pet-list-filters.co
 export class PetListResultsComponent {
   // * Injectors
   public petService = inject(PetsService);
+  public router = inject(Router);
   // * Signals
   public pets = input.required<PetState>();
   // * Variables
@@ -35,6 +36,6 @@ export class PetListResultsComponent {
    * @param {number} id - The ID of the item to view details for.
    */
   public onClickBtnViewDetails(id: number) {
-    console.log('View Details', id);
+    this.router.navigate(['', id]);
   }
 }

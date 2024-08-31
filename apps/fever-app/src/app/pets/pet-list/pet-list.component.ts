@@ -11,7 +11,6 @@ import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { PetsService } from '../shared/pets.service';
 import { ButtonComponent, PaginatorComponent } from '@fever-pets/ui';
-import { NavBarComponent } from '../../shared/components/nav-bar/nav-bar.component';
 import { PetListFiltersComponent } from './components/pet-list-filters/pet-list-filters.component';
 import { PetListResultsComponent } from './components/pet-list-results/pet-list-results.component';
 import { FormBuilder, Validators } from '@angular/forms';
@@ -25,13 +24,11 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
   imports: [
     CommonModule,
     ButtonComponent,
-    NavBarComponent,
     PetListFiltersComponent,
     PetListResultsComponent,
     PaginatorComponent,
     ScrollEndDirective,
   ],
-  providers: [PetsService],
   templateUrl: './pet-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
