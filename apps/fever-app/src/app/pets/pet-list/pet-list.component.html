@@ -1,5 +1,10 @@
 <app-nav-bar></app-nav-bar>
 <div class="container mx-auto p-4">
+  <app-pet-list-filters
+    [form]="form"
+    (formSubmit)="onSubmitFiltersForm()"
+    (formReset)="onResetSearch()"
+  ></app-pet-list-filters>
   @if (pets(); as pets) {
   <app-pet-list-results [pets]="pets"></app-pet-list-results>
   }

@@ -17,6 +17,6 @@ export class NavBarComponent {
    * Handles the click event of the view details button.
    */
   public onClickBtnContact() {
-    window.location.href = 'https://www.linkedin.com/in/mariovelascoalonso/';
+    window.open('https://www.linkedin.com/in/mariovelascoalonso/', '_blank');
   }
 }

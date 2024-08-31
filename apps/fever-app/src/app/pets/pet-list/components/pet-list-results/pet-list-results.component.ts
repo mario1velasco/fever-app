@@ -8,12 +8,13 @@ import { CommonModule } from '@angular/common';
 import { ButtonComponent } from '@fever-pets/ui';
 import { PetsService } from '../../../shared/pets.service';
 import { Pet } from '../../../shared/pets.types';
+import { PetListFiltersComponent } from '../pet-list-filters/pet-list-filters.component';
 
 @Component({
   selector: 'app-pet-list-results',
   standalone: true,
   providers: [PetsService],
-  imports: [CommonModule, ButtonComponent],
+  imports: [CommonModule, ButtonComponent, PetListFiltersComponent],
   templateUrl: './pet-list-results.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

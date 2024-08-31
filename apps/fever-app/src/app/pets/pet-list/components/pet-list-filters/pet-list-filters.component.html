@@ -1,4 +1,4 @@
-<div class="relative mx-4">
+<div class="relative py-4">
   <div
     class="mb-4 flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-8"
   >
@@ -32,15 +32,10 @@
         formControlName="sortBy"
         [options]="[
           'nameAsc',
-          'nameDesc',
           'weightAsc',
-          'weightDesc',
           'heightAsc',
-          'heightDesc',
           'lengthAsc',
-          'lengthDesc',
-          'kindAsc',
-          'kindDesc'
+          'kindAsc'
         ]"
         placeholder="Choose something"
       >
@@ -52,13 +47,13 @@
         for="searchByName"
         class="block text-sm font-medium text-gray-300 mb-2"
       >
-        Search by <span class="inline lg:hidden">*</span>
+        Search by name <span class="inline lg:hidden">*</span>
       </label>
       <input
         id="searchByName"
         type="text"
         formControlName="searchByName"
-        class="mt-1 p-2 w-full border border-gray-600 rounded-md bg-gray-700 text-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
+        class="mt-1 p-2 w-full border border-gray-600 rounded-md bg-gray-800 text-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
       />
       <p class="mt-1 text-xs text-gray-400">
         You can type anything to search by pet name
