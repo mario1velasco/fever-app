@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Pet } from './pets.types';
+import { Injectable, inject, signal } from '@angular/core';
+import { map, Observable, tap } from 'rxjs';
+import { Pet, PetState } from './pets.types';
 import { ApiService } from '@fever-pets/core';
 import { HttpParams } from '@angular/common/http';
 
@@ -8,6 +8,8 @@ import { HttpParams } from '@angular/common/http';
 export class PetsService {
   // * Injectors
   private apiService = inject(ApiService);
+  // * Signals Variables
+  private pets = signal<PetState>({});
 
   // **********************
   // ****** API Methods  *******
@@ -35,7 +37,15 @@ export class PetsService {
   ): Observable<Pet[]> {
     const params = this.generateHttpParams(filters, page, perPage, sort);
     const path = `/fever_pets_data/pets`;
-    return this.apiService.get(path, { params }) as Observable<Pet[]>;
+    return this.apiService.get(path, { params }).pipe(
+      map((response: unknown) => response as Pet[]), // Cast the response to Pet[]
+      tap((petsResponse: Pet[]) => {
+        const parseResponseToObject = this.parsePetsResponse(petsResponse);
+        this.pets.update((pets) => {
+          return { ...pets, ...parseResponseToObject };
+        });
+      })
+    ) as Observable<Pet[]>;
   }
   /**
    * This function retrieves a pet by its ID from an API using TypeScript and returns it as an
@@ -52,6 +62,19 @@ export class PetsService {
   // **********************
   // ****** Methods *******
   // **********************
+  /**
+   * Returns a subset of the given `pets` object, containing only pets with
+   * IDs between `startId` and `startId + count - 1`.
+   * @param pets - The object containing all the pets
+   * @param startId - The starting ID of the subset
+   * @param count - The number of pets to include in the subset. Undefined by default
+   * will return all pets (for mobile devices)
+   * @returns A new object containing the subset of pets
+   */
+  getPetList(startId = 1, count?: number): PetState {
+    return this.getPetsByIdRange(this.pets(), startId, count);
+  }
+
   /**
    * Calculates the health of a pet based on its weight, height, and length.
    *
@@ -131,5 +154,59 @@ export class PetsService {
     }
 
     return params;
+  }
+
+  /**
+   * Transforms an array of `Pet` objects into an object with keys equal to the `id` property of each
+   * pet and values equal to the `Pet` object itself.
+   *
+   * @param response - An array of `Pet` objects.
+   * @returns An object with keys equal to the `id` property of each pet and values equal to the `Pet` object itself.
+   */
+  private parsePetsResponse(response: Pet[]): PetState {
+    const pets: PetState = {};
+
+    for (const pet of response) {
+      pets[pet.id] = pet;
+    }
+
+    return pets;
+  }
+
+  /**
+   * Returns a subset of the given `pets` object, containing only pets with
+   * IDs between `startId` and `startId + count - 1`.
+   * @param pets - The object containing all the pets
+   * @param startId - The starting ID of the subset
+   * @param count - The number of pets to include in the subset
+   * @returns A new object containing the subset of pets
+   */
+  private getPetsByIdRange(
+    pets: PetState,
+    startId: number,
+    count?: number
+  ): PetState {
+    const result: PetState = {};
+    let added = 0;
+
+    // Return all pets if no count is provided. Useful for mobile to show all data that we got cached
+    if (!count) {
+      return pets;
+    }
+
+    // Return no pets if startId is greater than the number of pets. Useful for pagination.
+    // Only iterate count times. Does not iterate the whole object (Better performance).
+    for (
+      let id = startId;
+      id <= Object.keys(pets).length && added < count;
+      id++
+    ) {
+      if (pets[id]) {
+        result[id] = pets[id];
+        added++;
+      }
+    }
+
+    return result;
   }
 }

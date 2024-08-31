@@ -13,6 +13,10 @@ export interface Pet {
   number_of_lives?: number;
 }
 
+export interface PetState {
+  [key: number]: Pet;
+}
+
 export type PetFormType = FormGroup<{
   sortBy: FormControl<string | null>;
   searchByName: FormControl<string | null>;

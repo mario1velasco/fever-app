@@ -5,8 +5,12 @@
     (formSubmit)="onSubmitFiltersForm()"
     (formReset)="onResetSearch()"
   ></app-pet-list-filters>
-  @if (pets(); as pets) {
-  <app-pet-list-results [pets]="pets"></app-pet-list-results>
+  @if (petList; as pets) {
+  <app-pet-list-results
+    libScrollEnd
+    (scrollEnd)="onScrollEnd()"
+    [pets]="pets"
+  ></app-pet-list-results>
   }
   <ui-paginator
     class="w-full hidden md:block"

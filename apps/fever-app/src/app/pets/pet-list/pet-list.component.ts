@@ -15,8 +15,8 @@ import { NavBarComponent } from '../../shared/components/nav-bar/nav-bar.compone
 import { PetListFiltersComponent } from './components/pet-list-filters/pet-list-filters.component';
 import { PetListResultsComponent } from './components/pet-list-results/pet-list-results.component';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Pet, PetFormType } from '../shared/pets.types';
-import { DeviceService } from '@fever-pets/core';
+import { Pet, PetFormType, PetState } from '../shared/pets.types';
+import { DeviceService, ScrollEndDirective } from '@fever-pets/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
@@ -29,6 +29,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
     PetListFiltersComponent,
     PetListResultsComponent,
     PaginatorComponent,
+    ScrollEndDirective,
   ],
   providers: [PetsService],
   templateUrl: './pet-list.component.html',
@@ -44,7 +45,7 @@ export class PetListComponent implements OnInit {
 
   // * Signals Variables
   public device = toSignal(this.deviceService.getDevice());
-  public pets = toSignal(this.petService.getList());
+  public petList: PetState | undefined;
   public currentPage = signal(1);
   public pageSize = signal(10);
 
@@ -62,8 +63,9 @@ export class PetListComponent implements OnInit {
    * component properties and make API calls.
    */
   ngOnInit(): void {
-    // ? We mock the initial called API to don't reach the limit of UNSPLASH API calls very fast
+    this.updatePetList();
     this.onDesktopFormValuesChange();
+    this.onDeviceChange();
   }
 
   // **********************
@@ -71,10 +73,11 @@ export class PetListComponent implements OnInit {
   // **********************
   /**
    * The onSubmitFiltersForm function updates the pet list based on the values in the form.
+   * This only happen on mobile and tablet devices.
    */
   onSubmitFiltersForm() {
     this.currentPage.set(1);
-    this.updatePetList();
+    this.updatePetList(true);
   }
 
   /**
@@ -129,6 +132,38 @@ export class PetListComponent implements OnInit {
     this.updatePetList();
   }
 
+  /**
+   * The `onScrollEnd` function increases the page size by 10 if the device is mobile.
+   */
+  onScrollEnd() {
+    if (this.device() === 'mobile') {
+      this.currentPage.update((currentPage) => currentPage + 1);
+      this.updatePetList();
+    }
+  }
+
+  /**
+   * Listens to changes in the device (mobile or desktop) and updates the pet list and component
+   * accordingly. If the device is mobile, it shows all pets. If the device is desktop, it shows
+   * only the currently selected page of pets. The component is then marked for check so that
+   * the UI is updated.
+   */
+  onDeviceChange() {
+    this.deviceService
+      .getDevice()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((device) => {
+        if (device === 'mobile') {
+          this.petList = this.petService.getPetList(0);
+        } else {
+          const index = (this.currentPage() - 1) * this.pageSize() + 1;
+          const petList = this.petService.getPetList(index, this.pageSize());
+          this.petList = petList;
+        }
+        this.cd.markForCheck();
+      });
+  }
+
   // *****************
   // * Private methods
   // *****************
@@ -136,7 +171,7 @@ export class PetListComponent implements OnInit {
    * The function `updatePetList` calls a method to search for photos based on the current page and
    * page size, and then marks the component for check.
    */
-  private updatePetList(): void {
+  private updatePetList(isSubmitFromBtnForm = false): void {
     const searchByName = this.form.controls.searchByName.value,
       sortBy = this.form.controls.sortBy.value
         ? [this.form.controls.sortBy.value]
@@ -148,7 +183,12 @@ export class PetListComponent implements OnInit {
       .getList(filters, this.currentPage(), this.pageSize(), sortBy)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((petList) => {
-        this.pets = signal(petList);
+        if (this.device() === 'mobile' && !isSubmitFromBtnForm) {
+          this.petList = this.petService.getPetList(0);
+        } else {
+          this.petList = petList;
+        }
+
         this.cd.markForCheck();
       });
     this.cd.markForCheck();
