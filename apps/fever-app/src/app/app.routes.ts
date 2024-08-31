@@ -3,7 +3,8 @@ import { NotFoundComponent } from './shared/components/not-found/not-found.compo
 
 export const appRoutes: Route[] = [
   {
-    loadChildren: () => import('./pets/pets.module').then((m) => m.PetsModule),
+    loadChildren: () =>
+      import('./pages/pets/pets.module').then((m) => m.PetsModule),
     path: '',
   },
   { path: '**', component: NotFoundComponent },
