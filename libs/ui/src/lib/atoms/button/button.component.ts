@@ -1,4 +1,4 @@
-import { Component, input, output, ViewEncapsulation } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { CommonModule, NgClass } from '@angular/common';
 
 @Component({
@@ -6,7 +6,6 @@ import { CommonModule, NgClass } from '@angular/common';
   standalone: true,
   imports: [CommonModule, NgClass],
   templateUrl: './button.component.html',
-  encapsulation: ViewEncapsulation.None,
 })
 export class ButtonComponent {
   // * Inputs and Outputs
