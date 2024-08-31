@@ -43,7 +43,7 @@ export class PetListComponent implements OnInit {
   // * Signals Variables
   public device = toSignal(this.deviceService.getDevice());
   public petList: PetState | undefined;
-  public currentPage = signal(1);
+  public currentPage = this.petService.currentPage;
   public pageSize = signal(10);
 
   // * Variables
@@ -73,7 +73,8 @@ export class PetListComponent implements OnInit {
    * This only happen on mobile and tablet devices.
    */
   onSubmitFiltersForm() {
-    this.currentPage.set(1);
+    this.petService.currentPage = 1;
+    this.currentPage = 1;
     this.updatePetList(true);
   }
 
@@ -84,7 +85,8 @@ export class PetListComponent implements OnInit {
   onResetSearch() {
     this.form.reset();
     this.pageSize.set(10);
-    this.currentPage.set(1);
+    this.petService.currentPage = 1;
+    this.currentPage = 1;
     this.updatePetList();
   }
 
@@ -101,7 +103,8 @@ export class PetListComponent implements OnInit {
       )
       .subscribe(() => {
         if (this.device() === 'desktop') {
-          this.currentPage.set(1);
+          this.petService.currentPage = 1;
+          this.currentPage = 1;
           this.updatePetList();
         }
       });
@@ -113,7 +116,8 @@ export class PetListComponent implements OnInit {
    * page size for displaying search results for pets.
    */
   onPageSizeChange(newPageSize: number) {
-    this.currentPage.set(1);
+    this.petService.currentPage = 1;
+    this.currentPage = 1;
     this.pageSize.set(newPageSize);
     this.updatePetList();
   }
@@ -125,7 +129,8 @@ export class PetListComponent implements OnInit {
    * which the user wants to navigate.
    */
   onPageChange(newPage: number) {
-    this.currentPage.set(newPage);
+    this.petService.currentPage = newPage;
+    this.currentPage = newPage;
     this.updatePetList();
   }
 
@@ -134,7 +139,8 @@ export class PetListComponent implements OnInit {
    */
   onScrollEnd() {
     if (this.device() === 'mobile') {
-      this.currentPage.update((currentPage) => currentPage + 1);
+      this.currentPage = this.petService.currentPage + 1;
+      this.petService.currentPage = this.petService.currentPage + 1;
       this.updatePetList();
     }
   }
@@ -153,7 +159,7 @@ export class PetListComponent implements OnInit {
         if (device === 'mobile') {
           this.petList = this.petService.getPetList(0);
         } else {
-          const index = (this.currentPage() - 1) * this.pageSize() + 1;
+          const index = (this.petService.currentPage - 1) * this.pageSize() + 1;
           const petList = this.petService.getPetList(index, this.pageSize());
           this.petList = petList;
         }
@@ -177,7 +183,7 @@ export class PetListComponent implements OnInit {
       name: searchByName ? searchByName : undefined,
     };
     this.petService
-      .getList(filters, this.currentPage(), this.pageSize(), sortBy)
+      .getList(filters, this.petService.currentPage, this.pageSize(), sortBy)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((petList) => {
         if (this.device() === 'mobile' && !isSubmitFromBtnForm) {

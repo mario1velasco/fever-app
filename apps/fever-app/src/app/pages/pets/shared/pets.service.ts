@@ -13,6 +13,18 @@ export class PetsService {
   // * Signals Variables
   private pets = signal<PetState>({});
 
+  // * Variables
+  private _currentPage = 1;
+
+  // * Getters and Setters
+  public get currentPage(): number {
+    return this._currentPage;
+  }
+
+  public set currentPage(value: number) {
+    this._currentPage = value;
+  }
+
   // **********************
   // ****** API Methods  *******
   // **********************
