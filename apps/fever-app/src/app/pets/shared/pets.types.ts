@@ -1,10 +1,4 @@
-export interface PetsList {
-  id: string;
-  title: string;
-  duration: string;
-  budget: string;
-  release_date: string;
-}
+import { FormGroup, FormControl } from '@angular/forms';
 
 export interface Pet {
   id: number;
@@ -18,3 +12,20 @@ export interface Pet {
   // Optional for cats
   number_of_lives?: number;
 }
+
+export type PetFormType = FormGroup<{
+  sortBy: FormControl<string | null>;
+  searchByName: FormControl<string | null>;
+}>;
+
+export type sortBy =
+  | 'nameAsc'
+  | 'nameDesc'
+  | 'weightAsc'
+  | 'weightDesc'
+  | 'heightAsc'
+  | 'heightDesc'
+  | 'lengthAsc'
+  | 'lengthDesc'
+  | 'kindAsc'
+  | 'kindDesc';

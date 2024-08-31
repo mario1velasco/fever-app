@@ -1,0 +1,86 @@
+<div class="relative mx-4">
+  <div
+    class="mb-4 flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-8"
+  >
+    <ui-button
+      (btnClick)="onClickBtnToggleFormVisibility()"
+      type="button"
+      [text]="isFormVisible ? 'Hide Filters' : 'Show Filters'"
+      color="secondary"
+    />
+    <ui-button
+      (btnClick)="formReset.emit()"
+      type="button"
+      [text]="'Reset search'"
+      color="danger"
+    />
+  </div>
+
+  <form
+    *ngIf="form() && isFormVisible"
+    [formGroup]="form()"
+    class="mx-auto p-6 bg-gray-800 rounded-lg shadow-md transition-all duration-300"
+    [class.max-w-full]="isMaximized"
+    [class.max-w-md]="!isMaximized"
+    (ngSubmit)="formSubmit.emit()"
+  >
+    <div class="mb-4">
+      <label for="sort-by" class="block text-sm font-medium text-gray-300 mb-2">
+        Sort by <span class="inline lg:hidden">*</span>
+      </label>
+      <ui-dropdown
+        formControlName="sortBy"
+        [options]="[
+          'nameAsc',
+          'nameDesc',
+          'weightAsc',
+          'weightDesc',
+          'heightAsc',
+          'heightDesc',
+          'lengthAsc',
+          'lengthDesc',
+          'kindAsc',
+          'kindDesc'
+        ]"
+        placeholder="Choose something"
+      >
+      </ui-dropdown>
+    </div>
+
+    <div class="mb-4">
+      <label
+        for="searchByName"
+        class="block text-sm font-medium text-gray-300 mb-2"
+      >
+        Search by <span class="inline lg:hidden">*</span>
+      </label>
+      <input
+        id="searchByName"
+        type="text"
+        formControlName="searchByName"
+        class="mt-1 p-2 w-full border border-gray-600 rounded-md bg-gray-700 text-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
+      />
+      <p class="mt-1 text-xs text-gray-400">
+        You can type anything to search by pet name
+      </p>
+    </div>
+
+    <div class="flex justify-between items-center mt-10">
+      <ui-button
+        type="submit"
+        [disabled]="form().invalid"
+        class="w-full mr-2 block lg:hidden"
+        [text]="'Submit'"
+        color="primary"
+      ></ui-button>
+
+      <button
+        type="button"
+        class="hidden w-full md:block bg-gray-600 hover:bg-gray-700 text-gray-300 font-bold py-2 px-4 rounded transition duration-300"
+        (click)="onClickBtnToggleMaximize()"
+      >
+        {{ isMaximized ? 'Minimize' : 'Maximize' }}
+      </button>
+    </div>
+  </form>
+</div>
