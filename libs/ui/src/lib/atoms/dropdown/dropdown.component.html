@@ -24,21 +24,23 @@
       </svg>
     </button>
   </div>
+  @if (isOpen) {
   <div
-    *ngIf="isOpen"
     class="z-50 cursor-pointer origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none"
     role="menu"
     aria-orientation="vertical"
     aria-labelledby="options-menu"
   >
     <div class="py-1" role="none">
+      @for (option of options(); track $index) {
       <a
-        *ngFor="let option of options()"
         class="text-gray-300 block px-4 py-2 text-sm hover:bg-gray-700 hover:text-white"
         role="menuitem"
         (click)="onClickSelectOption(option)"
         >{{ option }}</a
       >
+      }
     </div>
   </div>
+  }
 </div>
