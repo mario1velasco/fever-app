@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -15,15 +15,14 @@ export class ApiService {
   //  ****** Methods ****
   //  *******************
   /**
-   * The `get` function sends a GET request to a specified path using the provided API URL.
-   * @param {string} path - The `path` parameter in the `get` function is a string that represents
-   * the endpoint or resource path that you want to make a GET request to. It is appended to the base
-   * API URL to form the complete URL for the request.
-   * @returns The `get` method is returning the result of making a GET request to the specified URL
-   * formed by combining the base API URL (`this.API`) and the provided `path`.
+   * The `get` function sends a GET request to a specified path using the provided API URL, with
+   * optional query parameters.
+   * @param {string} path - The endpoint or resource path for the GET request.
+   * @param { { params?: HttpParams } } [options] - Optional object containing request options, including 'params' for query parameters.
+   * @returns An Observable of the GET request response.
    */
-  get(path: string): Observable<object> {
+  get(path: string, options?: { params?: HttpParams }): Observable<object> {
     const url = `${this.API}${path}`;
-    return this.http.request('GET', url);
+    return this.http.get(url, options); // Pass the options object to the HttpClient's get method
   }
 }
