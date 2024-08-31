@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Pet } from './pets.types';
 import { ApiService } from '@fever-pets/core';
+import { HttpParams } from '@angular/common/http';
 
 @Injectable()
 export class PetsService {
@@ -12,12 +13,40 @@ export class PetsService {
   // ****** API Methods  *******
   // **********************
   /**
-   * The function `getList` retrieves a list of pets from a specified API endpoint.
-   * @returns An Observable of an array of Pet objects is being returned.
+   * The function `getList` retrieves a list of pets from a specified API endpoint, with optional
+   * filtering, pagination, and sorting based on provided parameters.
+   * @param {Partial<Pet>} [filters] - An optional object containing filter criteria for the pet list.
+   * @param {number} [page] - The page number for pagination (default is 1).
+   * @param {number} [perPage] - The number of items per page (default is 10).
+   * @param {string[]} [sort] - An array of field names for sorting (e.g., ['name', '-weight'] for
+   * ascending name and descending weight).
+   * @returns An Observable of an array of Pet objects, potentially filtered, paginated, and sorted
+   * based on the provided parameters.
    */
-  getList(): Observable<Pet[]> {
+  getList(
+    filters?: Partial<Pet>,
+    page = 1,
+    perPage = 10,
+    sort?: string[]
+  ): Observable<Pet[]> {
+    let params = new HttpParams()
+      .set('_page', page.toString())
+      .set('_per_page', perPage.toString());
+
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params = params.append(key, value.toString());
+        }
+      });
+    }
+
+    if (sort && sort.length > 0) {
+      params = params.set('_sort', sort.join(','));
+    }
+
     const path = `/fever_pets_data/pets`;
-    return this.apiService.get(path) as Observable<Pet[]>;
+    return this.apiService.get(path, { params }) as Observable<Pet[]>;
   }
   /**
    * This function retrieves a pet by its ID from an API using TypeScript and returns it as an

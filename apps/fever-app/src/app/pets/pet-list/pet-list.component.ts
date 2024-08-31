@@ -17,7 +17,11 @@ export class PetListComponent {
   // * Injectors
   public petService = inject(PetsService);
   // * Signals
-  public pets = toSignal(this.petService.getList());
+  public pets = toSignal(
+    this.petService.getList({
+      name: 'Cutie',
+    })
+  );
 
   // **********************
   // ****** Events  *******

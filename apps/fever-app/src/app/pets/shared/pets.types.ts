@@ -15,6 +15,6 @@ export interface Pet {
   length: number;
   photo_url: string;
   description: string;
-  number_of_lives?: number;
   // Optional for cats
+  number_of_lives?: number;
 }
