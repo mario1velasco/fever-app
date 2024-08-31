@@ -1,6 +1,55 @@
-<div *ngFor="let pet of pets()">
-  <h2>{{ pet.name }}</h2>
-  <img [src]="pet.photo_url" [alt]="pet.name" />
-  <p>Health: {{ petService.calculatePetHealth(pet) }}</p>
-  <!-- <a [routerLink]="['/pets', pet.id]">View Details</a> -->
+<div
+  class="container mx-auto p-4 flex justify-center items-center min-h-screen"
+>
+  @if (pet(); as pet) {
+
+  <div>
+    <h1 class="text-4xl font-extrabold text-center text-gray-200 mb-8">
+      Pet Profile
+    </h1>
+
+    <div
+      class="flex flex-col md:flex-row bg-gray-800 rounded-lg shadow-md overflow-hidden mb-8"
+    >
+      <div class="md:w-1/2">
+        <img
+          [src]="pet.photo_url"
+          [alt]="pet.name"
+          class="w-full h-96 md:h-auto object-cover brightness-75"
+        />
+      </div>
+      <div class="md:w-1/2 p-6 flex flex-col gap-4">
+        <h2 class="text-3xl font-bold">{{ pet.name }}</h2>
+        <p class="text-2xl text-gray-300">
+          <strong>Favorite Delights:</strong> {{ pet.description }}
+        </p>
+        <div class="flex flex-col space-y-2">
+          <p class="text-gray-300">
+            Well-being: <strong> {{ petHealth() }}</strong>
+          </p>
+          <p class="text-gray-300">
+            Kind:<strong> {{ pet.kind }}</strong>
+          </p>
+          <p class="text-gray-300">
+            Weight:<strong> {{ pet.weight }}g</strong>
+          </p>
+          <p class="text-gray-300">
+            Height:<strong> {{ pet.height }}cm</strong>
+          </p>
+          <p class="text-gray-300">
+            Length:<strong> {{ pet.length }}cm</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+    <ui-button
+      (btnClick)="onClickBtnBack()"
+      type="button"
+      [text]="'Back'"
+      color="primary"
+      size="large"
+    >
+    </ui-button>
+  </div>
+  }
 </div>
