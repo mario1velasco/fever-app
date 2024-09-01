@@ -5,6 +5,15 @@
       <ul class="flex space-x-4">
         <li>
           <ui-button
+            text="Pet of the day"
+            type="button"
+            color="danger"
+            size="medium"
+            (btnClick)="onClickBtnPetOfTheDay()"
+          ></ui-button>
+        </li>
+        <li>
+          <ui-button
             text="Contact"
             type="button"
             color="secondary"
@@ -15,5 +24,35 @@
       </ul>
     </div>
   </div>
+
+  <!-- ******************************* -->
+  <!-- **** Pet of the Day Dialog -->
+  <!-- ******************************* -->
+  <ui-dialog
+    title="Pet of the Day"
+    confirmButtonText="Accept"
+    [isOpen]="isOpen()"
+    [hideCancelButton]="true"
+    (confirm)="onClickDialogConfirmBtn()"
+  >
+    <div class="bg-gray-800 rounded-lg shadow-md overflow-hidden max-w-md flex">
+      <div class="p-4 w-full md:w-1/2">
+        <img
+          *ngIf="petOfTheDay"
+          [src]="petOfTheDay.pet.photo_url"
+          [alt]="petOfTheDay.pet.name"
+          class="w-full h-48 object-cover rounded-lg mb-4"
+        />
+      </div>
+      <div class="p-4 w-full md:w-1/2">
+        @if (petOfTheDay) {
+        <h3 class="text-lg font-medium mb-2 text-gray-300">
+          {{ petOfTheDay.pet.name }}
+        </h3>
+        <p class="text-gray-300">{{ petOfTheDay.pet.kind }}</p>
+        }
+      </div>
+    </div>
+  </ui-dialog>
 </nav>
 <div class="mb-20"></div>
