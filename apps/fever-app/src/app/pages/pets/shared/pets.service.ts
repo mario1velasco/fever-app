@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { map, Observable, of, tap } from 'rxjs';
-import { Pet, PetState } from './pets.types';
-import { ApiService } from '@fever-pets/core';
+import { Pet, PetOfTheDay, PetState } from './pets.types';
+import { ApiService, LocalStorageService } from '@fever-pets/core';
 import { HttpParams } from '@angular/common/http';
 
 @Injectable({
@@ -10,6 +10,7 @@ import { HttpParams } from '@angular/common/http';
 export class PetsService {
   // * Injectors
   private apiService = inject(ApiService);
+  private localStorageService = inject(LocalStorageService);
   // * Signals Variables
   private pets = signal<PetState>({});
 
@@ -61,6 +62,7 @@ export class PetsService {
       })
     ) as Observable<Pet[]>;
   }
+
   /**
    * Retrieves a pet by its ID from the API or the local cache and returns it as an Observable.
    * If `id` is null or undefined, it returns an empty Pet object.
@@ -118,12 +120,55 @@ export class PetsService {
     }
   }
 
+  /**
+   * ! NOTE: Not happy with the solution but I dont know how to get the last element (id).
+   * Fetches all pets from the API. This is a temporary solution to load all pets and is not
+   * the final solution. It does not have pagination or sorting. It will be replaced when the
+   * API is updated to support pagination and sorting.
+   *
+   * @returns An Observable emitting an array of `Pet` objects representing all pets.
+   */
+  getPetOfTheDay(): Observable<PetOfTheDay> {
+    // ! Temporary solution I need loading all pets. I could not find a solution to get the last item (id).
+    // ! Sorting descending not working properly.
+    const path = `/fever_pets_data/pets`;
+    // To prevent calling the API loading all pets all the time
+    const petOfTheDay = this.localStorageService.getData(
+      'petOfTheDay'
+    ) as PetOfTheDay | null;
+
+    if (petOfTheDay && this.isPetOfTheDaySameDayAsNow(petOfTheDay)) {
+      return of(petOfTheDay);
+    }
+    return this.apiService.get(path).pipe(
+      map((response: unknown) => response as Pet[]), // Cast the response to Pet[]
+      map((pets) => {
+        return this.generateAndSavePetOfTheDay(pets);
+      })
+    );
+  }
+
   // **********************
   // ****** Private Methods *******
   // **********************
+
+  /**
+   * Generates an HttpParams object from the given parameters.
+   * @param filters - An object containing filter criteria for the pets.
+   * @param page - The page number for pagination (default: 1).
+   * @param perPage - The number of pets per page (default: 10).
+   * @param sort - An array of sort criteria. Valid values are:
+   *   - 'nameAsc' (Ascending order by name)
+   *   - 'nameDesc' (Descending order by name)
+   *   - 'weightAsc', 'weightDesc', 'heightAsc', 'heightDesc', 'lengthAsc', 'lengthDesc'
+   *   - 'kindAsc', 'kindDesc'
+   *   Invalid sort values will be ignored.
+   * @returns An HttpParams object containing the generated parameters.
+   */
   private generateHttpParams(
     filters?: Partial<Pet>,
     page = 1,
+    // ! Also implemented for items per page: https://github.com/typicode/json-server?tab=readme-ov-file#sort
     perPage = 10,
     sort?: string[]
   ): HttpParams {
@@ -152,7 +197,7 @@ export class PetsService {
    * @returns The updated HttpParams.
    */
   private addSortHttpParams(params: HttpParams, sort: string[]): HttpParams {
-    // Also implemented for descending as documentation says: https://github.com/typicode/json-server?tab=readme-ov-file#sort
+    // ! Also implemented for descending as documentation says: https://github.com/typicode/json-server?tab=readme-ov-file#sort
     const validSortValues = [
       'nameAsc',
       'nameDesc',
@@ -231,5 +276,43 @@ export class PetsService {
     }
 
     return result;
+  }
+
+  /**
+   * Checks if the date stored in `_petOfTheDay` is the same day as today.
+   * @returns True if the date stored in `_petOfTheDay` is the same day as today.
+   */
+  private isPetOfTheDaySameDayAsNow(petOfTheDay: PetOfTheDay): boolean {
+    if (!petOfTheDay) {
+      return false;
+    }
+    const now = new Date();
+    const petDate = new Date(petOfTheDay.day);
+    return (
+      petDate.getDate() === now.getDate() &&
+      petDate.getMonth() === now.getMonth() &&
+      petDate.getFullYear() === now.getFullYear()
+    );
+  }
+
+  private generateAndSavePetOfTheDay(pets: Pet[]): PetOfTheDay {
+    if (!pets.length) {
+      return {} as PetOfTheDay;
+    }
+    const lastPetId = pets[pets.length - 1].id;
+    const randomId = this.getRandomNumber(lastPetId);
+    const newPetOfTheDay: PetOfTheDay = {
+      day: new Date().toString(),
+      pet: pets[randomId],
+    };
+    this.localStorageService.saveData('petOfTheDay', newPetOfTheDay);
+
+    return newPetOfTheDay;
+  }
+
+  private getRandomNumber(maxValue: number): number {
+    const random = Math.random() * maxValue;
+    const randomNumber = Math.ceil(random);
+    return randomNumber;
   }
 }

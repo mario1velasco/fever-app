@@ -13,6 +13,11 @@ export interface Pet {
   number_of_lives?: number;
 }
 
+export interface PetOfTheDay {
+  day: string;
+  pet: Pet;
+}
+
 export interface PetState {
   [key: number]: Pet;
 }
