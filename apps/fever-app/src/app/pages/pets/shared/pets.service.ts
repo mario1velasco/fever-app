@@ -96,7 +96,7 @@ export class PetsService {
    * will return all pets (for mobile devices)
    * @returns A new object containing the subset of pets
    */
-  getPetList(startId = 1, count?: number): PetState {
+  getPetList(startId = 1, count?: number): PetState | object {
     return this.getPetsByIdRange(this.pets(), startId, count);
   }
 
@@ -146,6 +146,23 @@ export class PetsService {
         return this.generateAndSavePetOfTheDay(pets);
       })
     );
+  }
+
+  /**
+   * Transforms an array of `Pet` objects into an object with keys equal to the `id` property of each
+   * pet and values equal to the `Pet` object itself.
+   *
+   * @param response - An array of `Pet` objects.
+   * @returns An object with keys equal to the `id` property of each pet and values equal to the `Pet` object itself.
+   */
+  parsePetsResponse(response: Pet[]): PetState {
+    const pets: PetState = {};
+
+    for (const pet of response) {
+      pets[pet.id] = pet;
+    }
+
+    return pets;
   }
 
   // **********************
@@ -225,23 +242,6 @@ export class PetsService {
   }
 
   /**
-   * Transforms an array of `Pet` objects into an object with keys equal to the `id` property of each
-   * pet and values equal to the `Pet` object itself.
-   *
-   * @param response - An array of `Pet` objects.
-   * @returns An object with keys equal to the `id` property of each pet and values equal to the `Pet` object itself.
-   */
-  private parsePetsResponse(response: Pet[]): PetState {
-    const pets: PetState = {};
-
-    for (const pet of response) {
-      pets[pet.id] = pet;
-    }
-
-    return pets;
-  }
-
-  /**
    * Returns a subset of the given `pets` object, containing only pets with
    * IDs between `startId` and `startId + count - 1`.
    * @param pets - The object containing all the pets
@@ -253,7 +253,7 @@ export class PetsService {
     pets: PetState,
     startId: number,
     count?: number
-  ): PetState {
+  ): PetState | object {
     const result: PetState = {};
     let added = 0;
 

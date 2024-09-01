@@ -14,7 +14,7 @@ import { ButtonComponent, PaginatorComponent } from '@fever-pets/ui';
 import { PetListFiltersComponent } from './components/pet-list-filters/pet-list-filters.component';
 import { PetListResultsComponent } from './components/pet-list-results/pet-list-results.component';
 import { FormBuilder, Validators } from '@angular/forms';
-import { Pet, PetFormType, PetState } from '../shared/pets.types';
+import { isPetState, Pet, PetFormType, PetState } from '../shared/pets.types';
 import { DeviceService, ScrollEndDirective } from '@fever-pets/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
@@ -60,7 +60,15 @@ export class PetListComponent implements OnInit {
    * component properties and make API calls.
    */
   ngOnInit(): void {
-    this.updatePetList();
+    const petList = this.petService.getPetList(
+      this.petService.currentPage,
+      this.pageSize()
+    );
+    if (isPetState(petList)) {
+      this.petList = petList;
+    } else {
+      this.updatePetList();
+    }
     this.onDesktopFormValuesChange();
     this.onDeviceChange();
   }
@@ -156,13 +164,14 @@ export class PetListComponent implements OnInit {
       .getDevice()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((device) => {
+        let petList: PetState | object | undefined;
         if (device === 'mobile') {
-          this.petList = this.petService.getPetList(0);
+          petList = this.petService.getPetList(0);
         } else {
           const index = (this.petService.currentPage - 1) * this.pageSize() + 1;
-          const petList = this.petService.getPetList(index, this.pageSize());
-          this.petList = petList;
+          petList = this.petService.getPetList(index, this.pageSize());
         }
+        this.petList = isPetState(petList) ? petList : undefined;
         this.cd.markForCheck();
       });
   }
@@ -187,9 +196,10 @@ export class PetListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((petList) => {
         if (this.device() === 'mobile' && !isSubmitFromBtnForm) {
-          this.petList = this.petService.getPetList(0);
+          const petList = this.petService.getPetList(0);
+          this.petList = isPetState(petList) ? petList : undefined;
         } else {
-          this.petList = petList;
+          this.petList = this.petService.parsePetsResponse(petList);
         }
 
         this.cd.markForCheck();
