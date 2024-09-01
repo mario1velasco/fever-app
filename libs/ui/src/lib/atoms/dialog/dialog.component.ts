@@ -20,6 +20,12 @@ export class DialogComponent {
   public title = input<string>();
   /** The text of the button for the confirm button */
   public confirmButtonText = input<string>('Confirm');
+  /** The text of the button for the cancel button */
+  public cancelButtonText = input<string>('Cancel');
+  /** Disable the cancel button  */
+  public cancelButtonDisabled = input<boolean>(false);
+  /** Hide the cancel button */
+  public hideCancelButton = input<boolean>(false);
   /** Disable the confirm button  */
   public confirmButtonDisabled = input<boolean>(false);
   /** Control dialog visibility using the isOpen property  */
