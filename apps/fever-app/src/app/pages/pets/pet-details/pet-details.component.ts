@@ -39,7 +39,7 @@ export class PetDetailsComponent {
   /**
    * Handles the click event of the view details button.
    */
-  public onClickBtnBack() {
+  onClickBtnBack() {
     this.router.navigate(['']);
   }
 }
