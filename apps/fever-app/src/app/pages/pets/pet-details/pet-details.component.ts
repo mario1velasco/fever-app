@@ -1,8 +1,11 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
+  ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PetsService } from '../shared/pets.service';
@@ -17,7 +20,8 @@ import { ButtonComponent } from '@fever-pets/ui';
   templateUrl: './pet-details.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PetDetailsComponent {
+export class PetDetailsComponent implements AfterViewInit {
+  @ViewChild('petDetailsContainer') petDetailsContainer!: ElementRef;
   // * Injectors
   public activatedRoute = inject(ActivatedRoute);
   public petService = inject(PetsService);
@@ -32,6 +36,13 @@ export class PetDetailsComponent {
     if (!pet) return 0;
     return this.petService.calculatePetHealth(pet);
   });
+
+  // **********************
+  // ***** Lifecycle *****
+  // **********************
+  ngAfterViewInit() {
+    this.petDetailsContainer.nativeElement.scrollIntoView();
+  }
 
   // **********************
   // ****** Events  *******

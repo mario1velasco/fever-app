@@ -1,9 +1,10 @@
 <div
+  #petDetailsContainer
   class="container mx-auto p-4 flex justify-center items-center min-h-screen"
 >
   @if (pet(); as pet) {
 
-  <div>
+  <div data-test="pet-details">
     <h1 class="text-4xl font-extrabold text-center text-gray-200 mb-8">
       Pet Profile
     </h1>
@@ -24,13 +25,13 @@
           <strong>Favorite Delights:</strong> {{ pet.description }}
         </p>
         <div class="flex flex-col space-y-2">
-          <p class="text-gray-300">
+          <p class="text-gray-300" data-test="pet-details-health">
             Well-being: <strong> {{ petHealth() }}</strong>
           </p>
           <p class="text-gray-300">
             Kind:<strong> {{ pet.kind }}</strong>
           </p>
-          <p class="text-gray-300">
+          <p class="text-gray-300" data-test="pet-details-weight">
             Weight:<strong> {{ pet.weight }}g</strong>
           </p>
           <p class="text-gray-300">
@@ -54,6 +55,7 @@
   } @else {
   <div
     class="flex flex-col gap-4 lg:gap-8 items-center justify-center h-screen"
+    data-test="pet-details-not-found"
   >
     <h1 class="text-4xl lg:text-7xl text-gray-300 mb-4">Pet not found</h1>
     <img
