@@ -5,7 +5,6 @@ import { Location } from '@angular/common';
   imports: [],
   selector: 'app-not-found',
   standalone: true,
-  styleUrls: ['./not-found.component.scss'],
   templateUrl: './not-found.component.html',
 })
 export class NotFoundComponent {
