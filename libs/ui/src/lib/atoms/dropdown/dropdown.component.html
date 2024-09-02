@@ -7,6 +7,7 @@
       aria-haspopup="true"
       aria-expanded="true"
       (click)="onCLickToggleDropdown()"
+      data-test="dropdown-button"
     >
       {{ optionSelected || placeholder() }}
       <svg
@@ -52,6 +53,7 @@
         class="text-gray-300 block px-4 py-2 text-sm hover:bg-gray-700 hover:text-white"
         role="menuitem"
         (click)="onClickSelectOption(option)"
+        data-test="dropdown-option"
         >{{ option }}</a
       >
       }

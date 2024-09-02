@@ -199,7 +199,7 @@ export class PetListComponent implements OnInit {
           const petList = this.petService.getPetList(0);
           this.petList = isPetState(petList) ? petList : undefined;
         } else {
-          this.petList = this.petService.parsePetsResponse(petList);
+          this.petList = petList;
         }
 
         this.cd.markForCheck();

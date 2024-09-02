@@ -1,4 +1,4 @@
-<div class="relative">
+<div class="relative" data-test="pet-list-filters">
   <div
     class="mb-4 flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-8"
   >
@@ -22,6 +22,7 @@
     [class.max-w-full]="isMaximized"
     [class.max-w-md]="!isMaximized"
     (ngSubmit)="formSubmit.emit()"
+    data-test="pet-list-filters-form"
   >
     <div class="mb-4">
       <label for="sort-by" class="block text-sm font-medium text-gray-300 mb-2">

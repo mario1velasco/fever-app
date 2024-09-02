@@ -3,7 +3,6 @@ import { nxE2EPreset } from '@nx/cypress/plugins/cypress-preset';
 import { defineConfig } from 'cypress';
 
 const cypressJsonConfig = {
-  // chromeWebSecurity: false,
   experimentalStudio: true,
   screenshotsFolder: '../../dist/cypress/apps/fever-app-e2e/screenshots',
   video: true,
@@ -20,9 +19,9 @@ export default defineConfig({
         production: 'npx nx run fever-app:serve-static',
       },
       ciWebServerCommand: 'npx nx run fever-app:serve-static',
-      ciBaseUrl: 'http://localhost:4200',
+      ciBaseUrl: 'http://localhost:4210',
     }),
     ...cypressJsonConfig,
-    baseUrl: 'http://localhost:4200',
+    baseUrl: 'http://localhost:4210',
   },
 });
