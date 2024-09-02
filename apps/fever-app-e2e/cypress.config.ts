@@ -19,9 +19,9 @@ export default defineConfig({
         production: 'npx nx run fever-app:serve-static',
       },
       ciWebServerCommand: 'npx nx run fever-app:serve-static',
-      ciBaseUrl: 'http://localhost:4210',
+      ciBaseUrl: 'http://localhost:4200',
     }),
     ...cypressJsonConfig,
-    baseUrl: 'http://localhost:4210',
+    baseUrl: 'http://localhost:4200',
   },
 });

@@ -13,20 +13,15 @@ describe('App tests', () => {
       cy.get(
         '.ng-untouched > .relative > div > [data-test="dropdown-button"]'
       ).click();
-      cy.get('.py-1 > :nth-child(1)').click();
+      cy.get('.py-1 > :nth-child(2)').click();
       cy.get('[data-test=pet-list-results-name]').should('have.length', 10);
       cy.get('[data-test=pet-list-results-name]').first().contains('Anabelle');
       cy.get(
         '.ng-touched > .relative > div > [data-test="dropdown-button"]'
       ).click();
-      cy.get('.py-1 > :nth-child(2)').click();
+      cy.get('.py-1 > :nth-child(3)').click();
       cy.get('[data-test=pet-list-results-name]').should('have.length', 10);
       cy.get('[data-test=pet-list-results-name]').first().contains('Cutie');
-      cy.get(
-        '.ng-touched > .relative > div > [data-test="dropdown-button"]'
-      ).click();
-      cy.get('.py-1 > :nth-child(3)').click();
-      cy.get('[data-test=pet-list-results-name]').first().contains('Jade');
       cy.get(
         '.ng-touched > .relative > div > [data-test="dropdown-button"]'
       ).click();
@@ -36,6 +31,11 @@ describe('App tests', () => {
         '.ng-touched > .relative > div > [data-test="dropdown-button"]'
       ).click();
       cy.get('.py-1 > :nth-child(5)').click();
+      cy.get('[data-test=pet-list-results-name]').first().contains('Jade');
+      cy.get(
+        '.ng-touched > .relative > div > [data-test="dropdown-button"]'
+      ).click();
+      cy.get('.py-1 > :nth-child(6)').click();
       cy.get('[data-test=pet-list-results-name]').first().contains('Stinky');
       cy.get('.flex-col > [color="danger"] > .bg-blue-500').click();
       cy.get('[data-test=pet-list-results-name]').first().contains('Jade');
@@ -90,7 +90,7 @@ describe('App tests', () => {
         '.ng-untouched > .relative > div > [data-test="dropdown-button"]'
       ).click();
       cy.get('[data-test=pet-list-results-name]').should('have.length', 10);
-      cy.get('.py-1 > :nth-child(1)').click();
+      cy.get('.py-1 > :nth-child(2)').click();
       cy.get('[data-test=pet-list-results-name]').first().contains('Anabelle');
       cy.get(':nth-child(4) > .h-5').click();
       cy.get('[data-test=pet-list-results-name]').should('have.length', 10);
