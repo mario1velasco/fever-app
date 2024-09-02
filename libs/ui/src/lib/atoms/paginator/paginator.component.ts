@@ -32,7 +32,7 @@ export class PaginatorComponent {
   // * GETTERS
   // *************
   get from() {
-    return (this.currentPage() - 1) * this.pageSize() + 1;
+    return this.currentPage() * this.pageSize() + 1;
   }
 
   get to() {
@@ -48,7 +48,7 @@ export class PaginatorComponent {
    * with a smooth animation.
    */
   onFirstPage() {
-    this.pageChange.emit(1);
+    this.pageChange.emit(0);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -58,7 +58,7 @@ export class PaginatorComponent {
    * Does nothing if the current page is 1.
    */
   onPreviousPage() {
-    if (this.currentPage() > 1) {
+    if (this.currentPage() > 0) {
       this.pageChange.emit(this.currentPage() - 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
