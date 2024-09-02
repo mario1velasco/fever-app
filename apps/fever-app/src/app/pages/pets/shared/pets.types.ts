@@ -18,35 +18,16 @@ export interface PetOfTheDay {
   pet: Pet;
 }
 
-export interface PetState {
-  [key: number]: Pet;
-}
-
-export function isPetState(variable: any): variable is PetState {
-  if (
-    typeof variable !== 'object' ||
-    variable === null ||
-    Object.keys(variable).length === 0
-  ) {
-    return false; // Must be an object and not null
-  }
-
-  for (const key in variable) {
-    if (isNaN(Number(key))) {
-      return false; // Keys must be numeric (or convertible to numbers)
-    }
-
-    const pet = variable[key];
-    if (typeof pet !== 'object' || pet === null) {
-      return false; // Values must be objects and not null
-    }
-  }
-
-  return true;
-}
+export type SortType =
+  | 'id'
+  | 'nameAsc'
+  | 'weightAsc'
+  | 'heightAsc'
+  | 'lengthAsc'
+  | 'kindAsc';
 
 export type PetFormType = FormGroup<{
-  sortBy: FormControl<string | null>;
+  sortBy: FormControl<SortType | null>;
   searchByName: FormControl<string | null>;
 }>;
 

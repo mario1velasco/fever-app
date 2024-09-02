@@ -7,7 +7,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ButtonComponent } from '@fever-pets/ui';
 import { PetsService } from '../../../shared/pets.service';
-import { PetState } from '../../../shared/pets.types';
+import { Pet } from '../../../shared/pets.types';
 import { PetListFiltersComponent } from '../pet-list-filters/pet-list-filters.component';
 import { Router } from '@angular/router';
 
@@ -23,7 +23,7 @@ export class PetListResultsComponent {
   public petService = inject(PetsService);
   public router = inject(Router);
   // * Signals
-  public pets = input.required<PetState>();
+  public pets = input.required<Pet[]>();
   // * Variables
   protected readonly object = Object;
 

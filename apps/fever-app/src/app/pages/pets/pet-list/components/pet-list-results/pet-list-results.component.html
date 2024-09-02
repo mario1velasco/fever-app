@@ -2,7 +2,7 @@
   class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"
   data-test="pet-list-results"
 >
-  @if (object.values(pets()).length === 0) {
+  @if (pets().length === 0) {
   <div
     class="md:col-span-3 lg:col-span-5 flex flex-col items-center justify-center text-center text-gray-300 py-8"
     data-test="pet-list-results-not-found"
@@ -15,7 +15,7 @@
     <p class="text-2xl font-semibold">No pets found.</p>
     <p>Try adjusting your search filters or check back later!</p>
   </div>
-  } @else { @for (pet of object.values(pets()); track pet.id) {
+  } @else { @for (pet of pets(); track pet.id) {
   <div
     class="bg-gray-800 rounded-lg shadow-md overflow-hidden transform hover:scale-105 transition duration-300"
     data-test="pet-list-results-found"

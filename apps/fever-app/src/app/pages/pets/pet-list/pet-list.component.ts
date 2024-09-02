@@ -14,7 +14,7 @@ import { ButtonComponent, PaginatorComponent } from '@fever-pets/ui';
 import { PetListFiltersComponent } from './components/pet-list-filters/pet-list-filters.component';
 import { PetListResultsComponent } from './components/pet-list-results/pet-list-results.component';
 import { FormBuilder, Validators } from '@angular/forms';
-import { isPetState, Pet, PetFormType, PetState } from '../shared/pets.types';
+import { Pet, PetFormType, SortType } from '../shared/pets.types';
 import { DeviceService, ScrollEndDirective } from '@fever-pets/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
@@ -42,13 +42,13 @@ export class PetListComponent implements OnInit {
 
   // * Signals Variables
   public device = toSignal(this.deviceService.getDevice());
-  public petList: PetState | undefined;
+  public petList: Pet[] | undefined;
   public currentPage = this.petService.currentPage;
   public pageSize = signal(10);
 
   // * Variables
   public form: PetFormType = this.fb.group({
-    sortBy: ['', Validators.required],
+    sortBy: [this.petService.sortType, Validators.required],
     searchByName: [''],
   });
 
@@ -61,10 +61,11 @@ export class PetListComponent implements OnInit {
    */
   ngOnInit(): void {
     const petList = this.petService.getPetList(
-      this.petService.currentPage,
-      this.pageSize()
+      this.petService.currentPage * this.pageSize(),
+      this.pageSize(),
+      this.petService.sortType
     );
-    if (isPetState(petList)) {
+    if (Array.isArray(petList) && petList.length > 0) {
       this.petList = petList;
     } else {
       this.updatePetList();
@@ -81,8 +82,8 @@ export class PetListComponent implements OnInit {
    * This only happen on mobile and tablet devices.
    */
   onSubmitFiltersForm() {
-    this.petService.currentPage = 1;
-    this.currentPage = 1;
+    this.petService.currentPage = 0;
+    this.currentPage = 0;
     this.updatePetList(true);
   }
 
@@ -93,8 +94,8 @@ export class PetListComponent implements OnInit {
   onResetSearch() {
     this.form.reset();
     this.pageSize.set(10);
-    this.petService.currentPage = 1;
-    this.currentPage = 1;
+    this.petService.currentPage = 0;
+    this.currentPage = 0;
     this.updatePetList();
   }
 
@@ -111,8 +112,8 @@ export class PetListComponent implements OnInit {
       )
       .subscribe(() => {
         if (this.device() === 'desktop') {
-          this.petService.currentPage = 1;
-          this.currentPage = 1;
+          this.petService.currentPage = 0;
+          this.currentPage = 0;
           this.updatePetList();
         }
       });
@@ -124,8 +125,8 @@ export class PetListComponent implements OnInit {
    * page size for displaying search results for pets.
    */
   onPageSizeChange(newPageSize: number) {
-    this.petService.currentPage = 1;
-    this.currentPage = 1;
+    this.petService.currentPage = 0;
+    this.currentPage = 0;
     this.pageSize.set(newPageSize);
     this.updatePetList();
   }
@@ -164,14 +165,22 @@ export class PetListComponent implements OnInit {
       .getDevice()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((device) => {
-        let petList: PetState | object | undefined;
+        let petList: Pet[] = [];
         if (device === 'mobile') {
-          petList = this.petService.getPetList(0);
+          petList = this.petService.getPetList(
+            0,
+            undefined,
+            this.petService.sortType
+          );
         } else {
-          const index = (this.petService.currentPage - 1) * this.pageSize() + 1;
-          petList = this.petService.getPetList(index, this.pageSize());
+          const index = this.petService.currentPage * this.pageSize();
+          petList = this.petService.getPetList(
+            index,
+            this.pageSize(),
+            this.petService.sortType
+          );
         }
-        this.petList = isPetState(petList) ? petList : undefined;
+        this.petList = petList;
         this.cd.markForCheck();
       });
   }
@@ -191,19 +200,36 @@ export class PetListComponent implements OnInit {
     const filters: Partial<Pet> = {
       name: searchByName ? searchByName : undefined,
     };
+    // * We stored the type of sort in the service so when we come from details we can use it
+    let sort = sortBy && (sortBy[0] as SortType);
+    if (!sort) {
+      sort = 'id';
+    }
+    this.petService.sortType = sort;
     this.petService
-      .getList(filters, this.petService.currentPage, this.pageSize(), sortBy)
+      .getList(
+        filters,
+        this.petService.currentPage + 1,
+        this.pageSize(),
+        sortBy
+      )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((petList) => {
         if (this.device() === 'mobile' && !isSubmitFromBtnForm) {
-          const petList = this.petService.getPetList(0);
-          this.petList = isPetState(petList) ? petList : undefined;
+          const itemsToShow =
+            (this.petService.currentPage + 1) * this.pageSize();
+
+          const petList = this.petService.getPetList(
+            0,
+            itemsToShow,
+            this.petService.sortType
+          );
+          this.petList = petList;
         } else {
           this.petList = petList;
         }
 
         this.cd.markForCheck();
       });
-    this.cd.markForCheck();
   }
 }

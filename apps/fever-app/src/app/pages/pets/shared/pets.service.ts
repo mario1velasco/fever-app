@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { map, Observable, of, tap } from 'rxjs';
-import { Pet, PetOfTheDay, PetState } from './pets.types';
+import { Pet, PetOfTheDay, SortType } from './pets.types';
 import { ApiService, LocalStorageService } from '@fever-pets/core';
 import { HttpParams } from '@angular/common/http';
 
@@ -12,18 +12,25 @@ export class PetsService {
   private apiService = inject(ApiService);
   private localStorageService = inject(LocalStorageService);
   // * Signals Variables
-  private pets = signal<PetState>({});
+  private pets = signal<Pet[]>([]);
 
   // * Variables
-  private _currentPage = 1;
+  private _currentPage = 0;
+  private _sortType: SortType = 'id';
 
   // * Getters and Setters
   public get currentPage(): number {
     return this._currentPage;
   }
-
   public set currentPage(value: number) {
     this._currentPage = value;
+  }
+
+  public get sortType(): SortType {
+    return this._sortType;
+  }
+  public set sortType(value: SortType) {
+    this._sortType = value;
   }
 
   // **********************
@@ -52,12 +59,12 @@ export class PetsService {
   ): Observable<Pet[]> {
     const params = this.generateHttpParams(filters, page, perPage, sort);
     const path = `/fever_pets_data/pets`;
+
     return this.apiService.get(path, { params }).pipe(
       map((response: unknown) => response as Pet[]), // Cast the response to Pet[]
       tap((petsResponse: Pet[]) => {
-        const parseResponseToObject = this.parsePetsResponse(petsResponse);
         this.pets.update((pets) => {
-          return { ...pets, ...parseResponseToObject };
+          return this.deleteDuplicateObjectsById([...pets, ...petsResponse]);
         });
       })
     ) as Observable<Pet[]>;
@@ -76,7 +83,7 @@ export class PetsService {
     if (!id) {
       return of({} as Pet);
     }
-    const petInState = this.pets()[Number(id)];
+    const petInState = this.pets().find((pet) => pet.id === Number(id));
     if (petInState) {
       return of(petInState);
     }
@@ -88,16 +95,46 @@ export class PetsService {
   // ****** Methods *******
   // **********************
   /**
-   * Returns a subset of the given `pets` object, containing only pets with
-   * IDs between `startId` and `startId + count - 1`.
-   * @param pets - The object containing all the pets
-   * @param startId - The starting ID of the subset
+   * Returns a subset of the pets, sorted and paginated based on the provided parameters.
+   * @param startPosition - The starting index of the subset
    * @param count - The number of pets to include in the subset. Undefined by default
    * will return all pets (for mobile devices)
+   * @param sortType - The sort criteria. Valid values are:
+   *   - 'id' (Ascending order by ID)
+   *   - 'nameAsc' (Ascending order by name)
+   *   - 'weightAsc', 'heightAsc', 'lengthAsc' (Ascending order by weight, height, length)
+   *   - 'kindAsc' (Ascending order by kind)
+   *   Invalid sort values will be ignored.
    * @returns A new object containing the subset of pets
    */
-  getPetList(startId = 1, count?: number): PetState | object {
-    return this.getPetsByIdRange(this.pets(), startId, count);
+  getPetList(startPosition = 0, count?: number, sortType?: SortType): Pet[] {
+    // 1. Sort the pets based on the provided sortType
+    const sortedPets = [...this.pets()].sort((a, b) => {
+      switch (sortType) {
+        case 'id':
+          return a.id - b.id;
+        case 'nameAsc':
+          return a.name.localeCompare(b.name);
+        case 'weightAsc':
+          return a.weight - b.weight;
+        case 'heightAsc':
+          return a.height - b.height;
+        case 'lengthAsc':
+          return a.length - b.length;
+        case 'kindAsc':
+          return a.kind.localeCompare(b.kind);
+        default:
+          return 0;
+      }
+    });
+
+    // 2. Apply pagination or retrieve all if count is not provided
+    if (count !== undefined) {
+      const endIndex = startPosition + count;
+      return sortedPets.slice(startPosition, endIndex);
+    } else {
+      return sortedPets; // Return the whole sorted array
+    }
   }
 
   /**
@@ -146,23 +183,6 @@ export class PetsService {
         return this.generateAndSavePetOfTheDay(pets);
       })
     );
-  }
-
-  /**
-   * Transforms an array of `Pet` objects into an object with keys equal to the `id` property of each
-   * pet and values equal to the `Pet` object itself.
-   *
-   * @param response - An array of `Pet` objects.
-   * @returns An object with keys equal to the `id` property of each pet and values equal to the `Pet` object itself.
-   */
-  parsePetsResponse(response: Pet[]): PetState {
-    const pets: PetState = {};
-
-    for (const pet of response) {
-      pets[pet.id] = pet;
-    }
-
-    return pets;
   }
 
   // **********************
@@ -240,44 +260,6 @@ export class PetsService {
 
     return params;
   }
-
-  /**
-   * Returns a subset of the given `pets` object, containing only pets with
-   * IDs between `startId` and `startId + count - 1`.
-   * @param pets - The object containing all the pets
-   * @param startId - The starting ID of the subset
-   * @param count - The number of pets to include in the subset
-   * @returns A new object containing the subset of pets
-   */
-  private getPetsByIdRange(
-    pets: PetState,
-    startId: number,
-    count?: number
-  ): PetState | object {
-    const result: PetState = {};
-    let added = 0;
-
-    // Return all pets if no count is provided. Useful for mobile to show all data that we got cached
-    if (!count) {
-      return pets;
-    }
-
-    // Return no pets if startId is greater than the number of pets. Useful for pagination.
-    // Only iterate count times. Does not iterate the whole object (Better performance).
-    for (
-      let id = startId;
-      id <= Object.keys(pets).length && added < count;
-      id++
-    ) {
-      if (pets[id]) {
-        result[id] = pets[id];
-        added++;
-      }
-    }
-
-    return result;
-  }
-
   /**
    * Checks if the date stored in `_petOfTheDay` is the same day as today.
    * @returns True if the date stored in `_petOfTheDay` is the same day as today.
@@ -314,5 +296,15 @@ export class PetsService {
     const random = Math.random() * maxValue;
     const randomNumber = Math.ceil(random);
     return randomNumber;
+  }
+
+  private deleteDuplicateObjectsById<T extends { id: any }>(array: T[]): T[] {
+    const uniqueObjects: { [id: string]: T } = {};
+
+    for (const obj of array) {
+      uniqueObjects[obj.id] = obj; // Keep only the last object with a specific id
+    }
+
+    return Object.values(uniqueObjects);
   }
 }
