@@ -1,11 +1,13 @@
 <nav class="bg-gray-700 p-4 fixed top-0 left-0 right-0 z-10">
   <div class="container mx-auto flex justify-between items-center">
-    <div class="text-xl font-bold text-white">Fever Pets! Together</div>
+    <div class="text-xl font-bold text-white">
+      {{ device() !== 'mobile' ? 'Fever Pets! Together' : 'F. Pets!' }}
+    </div>
     <div>
       <ul class="flex space-x-4">
         <li>
           <ui-button
-            text="Pet of the day"
+            [text]="device() !== 'mobile' ? 'Pet of the day' : 'Pet day'"
             type="button"
             color="danger"
             size="medium"

@@ -9,8 +9,9 @@ import { CommonModule } from '@angular/common';
 import { ButtonComponent, DialogComponent } from '@fever-pets/ui';
 import { Router } from '@angular/router';
 import { PetsService } from '../../../pages/pets/shared/pets.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { PetOfTheDay } from '../../../pages/pets/shared/pets.types';
+import { DeviceService } from '@fever-pets/core';
 
 @Component({
   selector: 'app-nav-bar',
@@ -24,6 +25,9 @@ export class NavBarComponent {
   public router = inject(Router);
   public petService = inject(PetsService);
   private destroyRef = inject(DestroyRef);
+
+  // * Signals Variables
+  public device = toSignal(inject(DeviceService).getDevice());
   // * Variables
   public isOpen = signal<boolean>(false);
   public petOfTheDay: PetOfTheDay | undefined;
